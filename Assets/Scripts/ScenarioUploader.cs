@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class ScenarioUploader : MonoBehaviour
 {
@@ -15,23 +16,22 @@ public class ScenarioUploader : MonoBehaviour
         {
             name = nameText.text
         };
-        scenario.name = authorText.text;
+        scenario.author = authorText.text;
         scenario.objects = GetComponent<ObjectSpawner>().spawnedObjects.ToList().Select(o => new GenericObject()
         {
+            objId = o.GetComponent<EditorObjectHandler>().objectId,
             x = o.transform.position.x,
             y = o.transform.position.y
         }).ToList();
         
         UploadScenario(scenario);
     }
-    
-    public void UploadScenario(Scenario scenario)
-    {
-        FirebaseDatabase.Push("scenarios", scenario);
-    }
 
-    public void UploadScore(int score, string scenarioId)
+    public async void UploadScenario(Scenario scenario)
     {
-        FirebaseDatabase.Push($"scenarios/{scenarioId}", score);
+        await FirebaseDatabase.Push("scenarios", scenario);
+        ReturnToMenu();
     }
+    
+    public void ReturnToMenu() => SceneManager.LoadScene("Menu");
 }
